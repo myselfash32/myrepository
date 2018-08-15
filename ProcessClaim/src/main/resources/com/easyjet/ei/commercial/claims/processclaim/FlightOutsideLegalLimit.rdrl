@@ -1,0 +1,15 @@
+package com.easyjet.ei.commercial.claims.processclaim;
+
+import java.lang.Number;
+import com.easyjet.ei.commercials.claims.pojo.claims.Claims;
+
+rule "FlightOutsideLegalLimit"
+	dialect "mvel"
+	ruleflow-group "ManualProcess"
+	when
+		c : Claims( claimant : claimant != null , tagent : claimant.travelAgent == null )
+	then
+		RulesResultObject fact0 = new RulesResultObject();
+		fact0.setRule_result( "REJECT" );
+		insert( fact0 );
+end

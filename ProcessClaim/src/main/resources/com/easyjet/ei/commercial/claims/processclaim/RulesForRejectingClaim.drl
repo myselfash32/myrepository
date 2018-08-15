@@ -1,0 +1,262 @@
+package com.easyjet.ei.commercial.claims.processclaim;
+
+
+import java.lang.Number;
+import com.easyjet.ei.commercials.claims.pojo.claims.Claims;
+import com.easyjet.ei.commercials.claims.pojo.geteresbooinginfo.BookingInfo;
+import com.easyjet.ei.commercials.claims.pojo.claims.ClaimLines;
+import com.easyjet.ei.commercials.claims.pojo.flightinfo.PostFlight;
+import com.easyjet.ei.commercials.claims.pojo.flightinfo.CustomerFlightStatus;
+import org.apache.commons.lang.time.DateUtils; 
+import java.util.Date;
+import java.util.List;
+import java.text.SimpleDateFormat;
+import org.slf4j.Logger;
+
+global org.slf4j.Logger logger;
+
+function long calculateDateDiffernce(String date1, String date2, String daysOrYears, RulesResultObject result_obj) {
+  
+   //System.out.println("Function calculateDateDiffernce.......................... " + result_obj.getRule_result());
+   SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+	Date date_1 = format.parse(date1);
+	long difference=0;
+	long datediff=0;
+   try{ 
+	
+	if(daysOrYears == "Days"){
+	    //System.out.println("Inside if");
+	    Date date_2 = format.parse(date2);
+	    difference = date_1.getTime() - date_2.getTime();
+	}
+	else{
+	   // System.out.println("Inside else 1...");
+	    difference = new Date().getTime() - date_1.getTime();
+	    //System.out.println("Inside else 2...");
+	}
+	
+	
+	long diffDays = difference / (24 * 60 * 60 * 1000);
+	//System.out.println("diffDays    "   +  diffDays);
+    
+    if(daysOrYears == "Days"){
+        datediff = diffDays;
+        //System.out.println("datediff in days    "   +  datediff);
+    }
+    else{
+        datediff = diffDays / 365;
+        //System.out.println("datediff in years    "   +  datediff);
+    }
+   }
+   catch(Exception e){	   	
+		result_obj.setRule_exception("Error while executing Reject rule FlightDateOlderThanSixYears or FlightDateGreaterThanClaimsDate. Flight date or Claims create date might be null or not in proper format. Error is: " + e.toString());	
+   }
+    return datediff;
+}
+
+function boolean checkMealForWelfare(ClaimLines[] list_claimlines,RulesResultObject result_obj){
+    
+    //System.out.println("function checkMealForWelfare.......   " + result_obj.getRule_result());	
+    
+    boolean isMealPresent = false;
+	try{	
+		for(int i=0; i<list_claimlines.length; i++){
+			if(!list_claimlines[i].getSubmittedType().equals("MEL")){
+				System.out.println("***&&&***");
+				isMealPresent = true;
+				break;
+		    }
+		}
+	}
+	catch(Exception e){	   	
+		result_obj.setRule_exception("Error while executing Reject rule IsMealPresentInClaim. Claim line object might be null. Error is: " + e.toString());
+	}
+	//System.out.println("function checkMealForWelfare.......   "  + isMealPresent);		
+	return isMealPresent;
+}
+    
+function boolean checkNoPayInDisruptionDB(CustomerFlightStatus flight_status_obj, String type, RulesResultObject result_obj){
+    
+    System.out.println("function checkNoPayInDisruptionDB.......   " + result_obj.getRule_result());	
+    
+    List<PostFlight> postFlightList_obj = flight_status_obj.getFlights().get(0).getPostFlight(); 
+			
+		int count = 0;
+		boolean reject = false;
+	try{
+		for(int i=0;i<postFlightList_obj.size();i++){
+		    if(type == "expenses"){
+			    if(!postFlightList_obj.get(i).getDisruptionDetails().getPayAirportTransfer() && !postFlightList_obj.get(i).getDisruptionDetails().getPayAlternativeTravel()
+			    && !postFlightList_obj.get(i).getDisruptionDetails().getPayHotel() && !postFlightList_obj.get(i).getDisruptionDetails().getPayMeal()){
+				//System.out.println("reject claim");
+    				count++;					
+			    }
+		    }
+			else{
+			    if(postFlightList_obj.get(i).getDisruptionDetails().getPrimaryCauseCode().startsWith("E")){
+					count++;
+				}
+			}
+		}
+		System.out.println(count);	
+		if(count == postFlightList_obj.size()){
+			System.out.println("reject");
+			reject = true;
+		}
+	}
+	catch(Exception e){	   	
+		result_obj.setRule_exception("Error while executing Reject rule AllExpenseTypesMarkedAsNoPay. Post flight object might be null or not all expenses present in the response. Error is: " + e.toString());
+	}
+	return reject;
+}
+
+
+rule "DisruptionLessThan2Hours"
+	ruleflow-group "Reject_RuleFlow"
+	salience 100
+	no-loop true
+	when
+		$result : RulesResultObject( distruptionResult == "NO_DISRUPTION" && rule_result != "REJECT" )
+		//claim : Claims(claimType == "EUC")
+	then
+		System.out.println("Rule DisruptionLessThan2Hours executed");
+		$result.setRule_result( "REJECT" );
+		$result.setReason("Flight Disruption is less than 2 hours");
+		update($result);
+		//System.out.println("££££££££   "   +  $result.getRule_result());
+end
+
+rule "DisruptionMoreThan2Hours"
+	ruleflow-group "Reject_RuleFlow"
+	//dialect "mvel"
+	salience 99
+	no-loop true
+	when
+		$result : RulesResultObject( distruptionResult == "DELAY_NO_RECORD" && rule_result != "REJECT" ) 
+		claim : Claims(claimType == "EUC") 
+	then
+		System.out.println("Rule DisruptionMoreThan2Hours executed");
+		$result.setRule_result( "REJECT" );
+		$result.setReason("Flight Disruption is more than 2 hours for Compensation");
+		update($result);
+end
+
+rule "DisruptionIsDiversionWithNoDelay"
+	ruleflow-group "Reject_RuleFlow"
+	//dialect "mvel"
+	salience 98
+	no-loop true
+	when
+		$result : RulesResultObject(distruptionResult == "DIVERSION" && rule_result != "REJECT" )
+		claim : Claims(claimType == "EUC")
+	then
+		System.out.println("Rule DisruptionIsDiversionWithNoDelay executed");		
+		$result.setRule_result( "REJECT" );
+		$result.setReason("Flight was only Diverted with no Delay");
+		update($result);
+end
+
+rule "IsStaffBooking"
+	ruleflow-group "Reject_RuleFlow"
+	//dialect "mvel"
+	salience 97
+	no-loop true
+	when
+	    //$result : RulesResultObject($rule_result : rule_result)
+	    $result : RulesResultObject(rule_result != "REJECT")
+		//booking : BookingInfo( isStaffTravel == "true" , $rule_result != "REJECT")
+		booking : BookingInfo( isStaffTravel == "true") 
+		claim : Claims(claimType == "EUC")		
+	then	
+		System.out.println("Rule IsStaffBooking executed");	
+		$result.setRule_result( "REJECT" );
+		$result.setReason("Booking type is Staff booking");
+		update($result);
+end
+
+rule "FlightDateOlderThanSixYears"
+    ruleflow-group "Reject_RuleFlow"
+//	dialect "mvel"
+	salience 96
+	no-loop true
+	when
+	    eval(true)
+		$result : RulesResultObject(rule_result != "REJECT")
+		Claims($flightDate : flightDate)
+		eval(calculateDateDiffernce($flightDate,"","Years",$result) > 6)
+	then	
+		System.out.println("Rule FlightDateOlderThanSixYears executed..");	    
+	    $result.setRule_result( "REJECT" );
+	    $result.setReason("Flight date is outside of the legal limit. More that 6 years");
+	    update($result);
+end
+
+rule "FlightDateGreaterThanClaimsDate"
+    ruleflow-group "Reject_RuleFlow"
+//	dialect "mvel"
+	salience 95
+	no-loop true
+	when
+	    $result : RulesResultObject(rule_result != "REJECT" )
+		Claims($flightDate : flightDate, $createDate : createDate)
+		eval(calculateDateDiffernce($flightDate,$createDate,"Days",$result) > 15)
+	then
+	
+		  System.out.println("Rule FlightDateGreaterThanClaimsDate executed..");
+		
+
+	    
+	    $result.setRule_result( "REJECT" );
+	    $result.setReason("Flight date is of future and 15 days greater that claims date");
+	    update($result);
+end
+
+rule "IsMealPresentInClaim"
+    ruleflow-group "Reject_RuleFlow"
+	//dialect "mvel"
+	salience 94
+	no-loop true
+	when
+		$result : RulesResultObject( rule_result != "REJECT" && distruptionResult == "DELAY_NO_RECORD")
+		claim : Claims($claimLines : claimLines && claimType == "Welfare" )
+		eval(checkMealForWelfare($claimLines,$result) == true)		
+	then	
+		System.out.println("Rule IsMealPresentInClaim executed..");	    
+	    $result.setRule_result( "REJECT" );
+	    $result.setReason("Flight for Welfare claim is delayed by 2 to 3 hours and expenses includes other than MEAL");
+	    update($result);
+end
+
+rule "AllExpenseTypesMarkedAsNoPay"
+    ruleflow-group "Reject_RuleFlow"
+	//dialect "mvel"
+	salience 93
+	no-loop true
+	when
+		$result : RulesResultObject( rule_result != "REJECT")
+		claim : Claims(claimType == "Welfare" )
+		$flight_stats_object : CustomerFlightStatus()
+		eval(checkNoPayInDisruptionDB($flight_stats_object,"expenses",$result) == true)
+	then	
+		System.out.println("Rule AllExpenseTypesMarkedAsNoPay executed..");	    
+	    $result.setRule_result( "REJECT" );
+	    $result.setReason("All expenses for Welfare claim are Marked as No Pay");
+	    update($result);
+end
+
+rule "ExtraOrdinaryCheck"
+    ruleflow-group "Reject_RuleFlow"
+	//dialect "mvel"
+	salience 92
+	no-loop true
+	when
+		$result : RulesResultObject( rule_result != "REJECT")
+		claim : Claims(claimType == "EUC" )
+		$flight_stats_object : CustomerFlightStatus()
+		eval(checkNoPayInDisruptionDB($flight_stats_object,"extraordinary",$result))		
+	then	
+		System.out.println("Rule ExtraOrdinaryCheck executed..");	    
+	    $result.setRule_result( "REJECT" );
+	    $result.setReason("Flight is classified as Extra Ordinary");
+	    update($result);
+end

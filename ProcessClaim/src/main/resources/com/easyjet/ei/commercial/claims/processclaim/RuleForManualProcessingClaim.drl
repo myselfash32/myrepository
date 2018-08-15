@@ -1,0 +1,205 @@
+package com.easyjet.ei.commercial.claims.processclaim;
+
+import com.easyjet.ei.commercials.claims.pojo.geteresbooinginfo.BookingInfo;
+
+import java.util.List;
+import com.easyjet.ei.commercials.claims.pojo.geteresbooinginfo.BookingInfo;
+import com.easyjet.ei.commercials.claims.pojo.geteresbooinginfo.TravellerInfo;
+import com.easyjet.ei.commercials.claims.pojo.claims.ClaimLines;
+import java.util.ArrayList;
+import java.util.Collection;
+
+function boolean function_checkPassangersDetailsMatches(Claims claim_obj, BookingInfo book_info_obj){
+    
+    ClaimLines claim_lines[] =  claim_obj.getClaimLines();
+    boolean checkPassangers = false;
+    List<String> list_booking_passahngers = new ArrayList<>();
+	List<String> list_claim_passangers = new ArrayList<>();
+    
+	for(int i=0;i<claim_lines.length;i++){
+				
+		list_claim_passangers.add( claim_lines[i].getFirstName());
+		list_claim_passangers.add( claim_lines[i].getLastName());
+	}
+			
+	List<TravellerInfo> traveler_info = book_info_obj.getTravellerInfo();
+			
+	for(int i=0;i<traveler_info.size();i++){
+		list_booking_passahngers.add(traveler_info.get(i).getFirstName());
+	    list_booking_passahngers.add(traveler_info.get(i).getLastName());
+	}
+			
+	java.util.Collections.sort(list_claim_passangers);
+	java.util.Collections.sort(list_booking_passahngers);
+			
+	//System.out.println("*********************************************    "  +  list_claim_passangers.equals(list_booking_passahngers));
+	
+	if(!list_claim_passangers.equals(list_booking_passahngers))
+	    checkPassangers = true;
+	
+    return checkPassangers;
+}
+
+function boolean function_checkFlightExists(Claims claim_obj, BookingInfo book_info_obj){
+    
+    List<com.easyjet.ei.commercials.claims.pojo.geteresbooinginfo.Flight> list_flight = book_info_obj.getFlights();
+			
+	//		System.out.println("list_flight   "   + list_flight);
+			boolean validation = false;
+			
+			for(int i=0;i<list_flight.size();i++){
+				
+				if(list_flight.get(i).getFlightDate().equals(claim_obj.getFlightDate().split("T")[0]) &&
+					list_flight.get(i).getFlightNumber().equals(claim_obj.getFlightNumber())){
+				//	System.out.println("sdsad");
+						validation = true;
+						break;
+					}
+			}
+			
+	//		System.out.println(validation);
+			
+	return !validation;
+			    
+}
+
+function boolean function_checkAllPassangersTravelled(BookingInfo book_info_obj){
+    
+    List<TravellerInfo> traveller_info = book_info_obj.getTravellerInfo();
+			boolean allPsngTravelled = false;
+			for(int i=0;i<traveller_info.size();i++){
+				if(traveller_info.get(i).getBoarded().equals("false")){
+	//				System.out.println("&*&*&*&*&*&*&*");
+					allPsngTravelled = true;
+					break;
+				}
+			}
+	return allPsngTravelled;
+}
+
+function boolean function_checkCancellationWithNE(CustomerFlightStatus flight_status_obj){
+    
+    List<PostFlight> postFlight_obj_list = flight_status_obj.getFlights().get(0).getPostFlight();
+	boolean output = false;		
+		for(int i=0;i<postFlight_obj_list.size();i++){
+				
+			if(postFlight_obj_list.get(i).getDisruptionDetails().getDisruptionRecordType().equals("CANCELLATION")
+			&& postFlight_obj_list.get(i).getDisruptionDetails().getPrimaryCauseCode().startsWith("N-E")){
+			    output = true;
+			}
+		}
+    return output;
+}
+
+rule "IsClaimantTravelAgent"
+	ruleflow-group "Manual_RuleFlow"
+	salience 91
+	no-loop true
+	when
+		$result : RulesResultObject(rule_result != "MANUAL")
+		claim : Claims(claimant.travelAgent != "" && claimant.travelAgent != null)
+	then
+	System.out.println("Rule IsClaimantTravelAgent executed");
+		$result.setRule_result( "MANUAL" );
+		$result.setReason("Claimant has marked himself as Travel Agent while rasing Claim");
+		//$checkReject = $result.getRule_result();
+		update($result);
+end
+
+rule "IsEasyJetHolidayBooking"
+	ruleflow-group "Manual_RuleFlow"
+	salience 90
+	no-loop true
+	when
+		$result : RulesResultObject(rule_result != "MANUAL")
+		bookinfo : BookingInfo(isEasyJetHolidays == "true")
+	then
+	System.out.println("Rule IsEasyJetHolidayBooking executed");
+		$result.setRule_result( "MANUAL" );
+		$result.setReason("Booking was made on easyJet holidays");
+		//$checkReject = $result.getRule_result();
+		update($result);
+end
+
+rule "ClaimantIsNotBookerClaimingForMultiplePax"
+	ruleflow-group "Manual_RuleFlow"
+	salience 89
+	no-loop true
+	when
+		$result : RulesResultObject(rule_result != "MANUAL")
+		claim : Claims((claimant.isLeadBooker == false) && paxCount >= 2 && claimType == "EUC")
+	then
+	System.out.println("Rule ClaimantIsNotBookerClaimingForMultiplePax executed");
+		$result.setRule_result( "MANUAL" );
+		$result.setReason("Claimant is not lead booker but applied for multiple passangers");
+		//$checkReject = $result.getRule_result();
+		update($result);
+end
+
+rule "CheckPassangersMatchesForClaimAndBooking"
+	ruleflow-group "Manual_RuleFlow"
+	salience 88
+	no-loop true
+	when
+		$result : RulesResultObject(rule_result != "MANUAL")
+		$claim : Claims()
+		$bookInfo : BookingInfo() 
+		eval(function_checkPassangersDetailsMatches($claim,$bookInfo))
+	then
+	System.out.println("Rule CheckPassangersMatchesForClaimAndBooking executed");
+		$result.setRule_result( "MANUAL" );
+		$result.setReason("Passangers details mentioned in claim does not matched with passanger details in booking");
+		//$checkReject = $result.getRule_result();
+		update($result);
+end
+
+rule "CheckFlightExistsInBooking"
+	ruleflow-group "Manual_RuleFlow"
+	salience 87
+	no-loop true
+	when
+		$result : RulesResultObject(rule_result != "MANUAL")
+		$claim : Claims()
+		$bookInfo : BookingInfo() 
+		eval(function_checkFlightExists($claim,$bookInfo))
+	then
+	System.out.println("Rule CheckFlightExistsInBooking executed");
+		$result.setRule_result( "MANUAL" );
+		$result.setReason("Flight mentioned in cliam does not matches with booking");
+		//$checkReject = $result.getRule_result();
+		update($result);
+end
+
+rule "AllPassangersTravelled"
+	ruleflow-group "Manual_RuleFlow"
+	salience 86
+	no-loop true
+	when
+		$result : RulesResultObject(rule_result != "MANUAL")
+		$bookInfo : BookingInfo() 
+		$claim : Claims(claimType == "EUC")
+		eval(function_checkAllPassangersTravelled($bookInfo))
+	then
+	System.out.println("Rule AllPassangersTravelled executed");
+		$result.setRule_result( "MANUAL" );
+		$result.setReason("All passangers mentioned in the claim are not travelled");
+		//$checkReject = $result.getRule_result();
+		update($result);
+end
+
+rule "CancellationDisruptionWithNonExtraordinory"
+	ruleflow-group "Manual_RuleFlow"
+	salience 85
+	no-loop true
+	when
+		$result : RulesResultObject(rule_result != "MANUAL")
+		$claim : Claims(claimType == "EUC")
+		$cust_flight_obj : CustomerFlightStatus()
+		eval(function_checkCancellationWithNE($cust_flight_obj))
+	then
+	System.out.println("Rule CancellationDisruptionWithNonExtraordinory executed");
+		$result.setRule_result( "MANUAL" );
+		$result.setReason("Disruption type is Cancellation and Non Extra Ordinary");
+		//$checkReject = $result.getRule_result();
+		update($result);
+end

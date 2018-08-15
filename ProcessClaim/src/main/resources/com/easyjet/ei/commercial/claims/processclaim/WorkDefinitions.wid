@@ -1,0 +1,139 @@
+import org.drools.core.process.core.datatype.impl.type.StringDataType;
+import org.drools.core.process.core.datatype.impl.type.ObjectDataType;
+import org.drools.core.process.core.datatype.impl.type.IntegerDataType;
+
+[
+  [
+    "name" : "Email",
+    "parameters" : [
+      "From" : new StringDataType(),
+      "To" : new StringDataType(),
+      "Subject" : new StringDataType(),
+      "Body" : new StringDataType()
+    ],
+    "displayName" : "Email",
+    "icon" : "defaultemailicon.gif"
+  ],
+
+  [
+    "name" : "Log",
+    "parameters" : [
+      "Message" : new StringDataType()
+    ],
+    "displayName" : "Log",
+    "icon" : "defaultlogicon.gif"
+  ],
+
+  [
+    "name" : "WebService",
+    "parameters" : [
+        "Url" : new StringDataType(),
+         "Namespace" : new StringDataType(),
+         "Interface" : new StringDataType(),
+         "Operation" : new StringDataType(),
+         "Parameter" : new StringDataType(),
+         "Endpoint" : new StringDataType(),
+         "Mode" : new StringDataType()
+    ],
+    "results" : [
+        "Result" : new ObjectDataType(),
+    ],
+    "displayName" : "WS",
+    "icon" : "defaultservicenodeicon.png"
+  ],
+
+  [
+    "name" : "Rest",
+    "parameters" : [
+        "Url" : new StringDataType(),
+        "Method" : new StringDataType(),
+        "ConnectTimeout" : new StringDataType(),
+        "ReadTimeout" : new StringDataType(),
+        "Username" : new StringDataType(),
+        "Password" : new StringDataType(),
+        "HandleResponseErrors" : new StringDataType()
+    ],
+    "results" : [
+        "Result" : new ObjectDataType(),
+    ],
+    "displayName" : "REST",
+    "icon" : "defaultservicenodeicon.png"
+  ],
+  
+  [
+    "name" : "CreateUpdateKANACase",
+    "parameters" : [
+        "claim_obj" : new ObjectDataType(),
+        "stage" : new StringDataType(),
+        "kana_operation" : new StringDataType(),
+        "kana_state" : new StringDataType(),
+        "kana_note" : new StringDataType(),
+        
+    ],
+    "results" : [
+        "Result" : new StringDataType(),
+    ],
+    "displayName" : "Create/Update KANA Case",
+    "icon" : "defaultservicenodeicon.png"
+  ]
+  
+  ,
+  
+  [
+    "name" : "LoadProperties",
+    "parameters" : [
+        "location" : new StringDataType();
+        
+    ],
+    "results" : [
+        "prop_obj" : new ObjectDataType(),
+    ],
+    "displayName" : "LoadProperties",
+    "icon" : "defaultservicenodeicon.png"
+  ],
+  [
+    "name" : "KanaAddAttachment",
+    "parameters" : [
+        "kana_url" : new StringDataType(),
+        "filePath" : new StringDataType(),
+        "caseId" : new StringDataType(),
+        "claimRef" : new StringDataType(),
+        "serverURI" : new StringDataType(),
+    ],
+    "results" : [
+        "Result" : new StringDataType(),
+    ],
+    "displayName" : "KanaAddAttachment",
+    "icon" : "defaultservicenodeicon.png"
+  ],
+  [
+    "name" : "ClaimsBpmsMappingTableUpdate",
+    "parameters" : [
+        "operation" : new StringDataType(),
+        "claim_reference" : new StringDataType(),
+        "processInstaceId_main" : new IntegerDataType(),
+        "processInstaceId_signal" : new IntegerDataType(),
+        "processName_signal" : new StringDataType(),
+        "claimState_new" : new StringDataType(),
+        "signal_name" : new StringDataType()
+    ],
+    "results" : [
+        "Result" : new StringDataType(),
+    ],
+    "displayName" : "ClaimsBpmsMappingTableUpdate",
+    "icon" : "defaultservicenodeicon.png"
+  ],
+  ,
+  [
+    "name" : "LogClaimProcessExceptions",
+    "parameters" : [
+        "error_map" : new ObjectDataType()
+    ],
+    "results" : [
+        "Result" : new StringDataType(),
+    ],
+    "displayName" : "LogClaimProcessExceptions",
+    "icon" : "defaultservicenodeicon.png"
+  ],
+
+]

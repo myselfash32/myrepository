@@ -1,0 +1,840 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/bpmn20" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" id="_U97nMFW4EeemQLvL9CHFYg" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd" exporter="jBPM Designer" exporterVersion="6.2.0" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.omg.org/bpmn20" typeLanguage="http://www.java.com/javaTypes">
+  <bpmn2:itemDefinition id="_cust_flight_statusItem" structureRef="com.easyjet.ei.commercials.claims.pojo.flightinfo.CustomerFlightStatus"/>
+  <bpmn2:itemDefinition id="_list_flight_segmentsItem" structureRef="java.util.List"/>
+  <bpmn2:itemDefinition id="_result_segment_checkItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_result_exit_conditionItem" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="_list_resultItem" structureRef="java.util.List"/>
+  <bpmn2:itemDefinition id="_result_finalItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_samedayflightsItem" structureRef="Boolean"/>
+  <bpmn2:itemDefinition id="_error_msgItem" structureRef="String"/>
+  <bpmn2:itemDefinition id="_error_mapItem" structureRef="java.util.HashMap"/>
+  <bpmn2:error id="_U97nVVW4EeemQLvL9CHFYg"/>
+  <bpmn2:error id="_U97nU1W4EeemQLvL9CHFYg" errorCode="error_calculatedisruptionimpact" name="error_calculatedisruptionimpact"/>
+  <bpmn2:itemDefinition id="_78E3DB31-2EED-498F-87DB-D7429C831231_multiInstanceItemType"/>
+  <bpmn2:itemDefinition id="_flight_segItem" structureRef="com.easyjet.ei.commercials.claims.pojo.flightinfo.FlightSegment"/>
+  <bpmn2:process id="ProcessClaim.CalculateDisruptionImpact" drools:packageName="org.jbpm" drools:version="1.0" name="CalculateDisruptionImpact" isExecutable="true">
+    <bpmn2:extensionElements>
+      <drools:import name="com.easyjet.ei.commercials.claims.pojo.flightinfo.FlightSegment"/>
+      <drools:import name="java.util.List"/>
+      <drools:import name="java.util.ArrayList"/>
+      <drools:import name="java.util.HashMap"/>
+    </bpmn2:extensionElements>
+    <bpmn2:property id="cust_flight_status" itemSubjectRef="_cust_flight_statusItem"/>
+    <bpmn2:property id="list_flight_segments" itemSubjectRef="_list_flight_segmentsItem"/>
+    <bpmn2:property id="result_segment_check" itemSubjectRef="_result_segment_checkItem"/>
+    <bpmn2:property id="result_exit_condition" itemSubjectRef="_result_exit_conditionItem"/>
+    <bpmn2:property id="list_result" itemSubjectRef="_list_resultItem"/>
+    <bpmn2:property id="result_final" itemSubjectRef="_result_finalItem"/>
+    <bpmn2:property id="samedayflights" itemSubjectRef="_samedayflightsItem"/>
+    <bpmn2:property id="error_msg" itemSubjectRef="_error_msgItem"/>
+    <bpmn2:property id="error_map" itemSubjectRef="_error_mapItem"/>
+    <bpmn2:subProcess id="_FB5A906A-7258-4681-9DBE-24DE842811C5" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_FE8B96B5-CFF7-452C-893B-79FD95445809</bpmn2:incoming>
+      <bpmn2:outgoing>_EBC022EA-C3F3-4F35-A3BB-CDB4CDBB89B7</bpmn2:outgoing>
+      <bpmn2:ioSpecification id="_U97nMVW4EeemQLvL9CHFYg">
+        <bpmn2:inputSet id="_U97nMlW4EeemQLvL9CHFYg"/>
+        <bpmn2:outputSet id="_U97nM1W4EeemQLvL9CHFYg"/>
+      </bpmn2:ioSpecification>
+      <bpmn2:startEvent id="processStartEvent" drools:selectable="true" color:background-color="#9acd32" color:border-color="#000000" color:color="#000000" name="">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:documentation id="_U97nNFW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        <bpmn2:outgoing>_EE3BDF30-9638-4CA8-9433-ED4AF5108FDC</bpmn2:outgoing>
+      </bpmn2:startEvent>
+      <bpmn2:subProcess id="_78E3DB31-2EED-498F-87DB-D7429C831231" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="For each flight segment">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[For each flight segment]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>_26EE5450-7B10-49CD-982D-751CED7D0556</bpmn2:incoming>
+        <bpmn2:outgoing>_1B56ED9E-DA6E-4617-A7B6-2665391E9C5B</bpmn2:outgoing>
+        <bpmn2:ioSpecification id="_U97nNVW4EeemQLvL9CHFYg">
+          <bpmn2:dataInput id="_78E3DB31-2EED-498F-87DB-D7429C831231_input" name="list_flight_segments"/>
+          <bpmn2:inputSet id="_U97nNlW4EeemQLvL9CHFYg">
+            <bpmn2:dataInputRefs>_78E3DB31-2EED-498F-87DB-D7429C831231_input</bpmn2:dataInputRefs>
+          </bpmn2:inputSet>
+          <bpmn2:outputSet id="_U97nN1W4EeemQLvL9CHFYg"/>
+        </bpmn2:ioSpecification>
+        <bpmn2:property id="flight_seg" itemSubjectRef="_flight_segItem"/>
+        <bpmn2:dataInputAssociation id="_U97nOFW4EeemQLvL9CHFYg">
+          <bpmn2:sourceRef>list_flight_segments</bpmn2:sourceRef>
+          <bpmn2:targetRef>_78E3DB31-2EED-498F-87DB-D7429C831231_input</bpmn2:targetRef>
+        </bpmn2:dataInputAssociation>
+        <bpmn2:multiInstanceLoopCharacteristics id="_U97nOVW4EeemQLvL9CHFYg">
+          <bpmn2:loopDataInputRef>_78E3DB31-2EED-498F-87DB-D7429C831231_input</bpmn2:loopDataInputRef>
+          <bpmn2:inputDataItem xsi:type="bpmn2:tDataInput" id="defaultDataInput" itemSubjectRef="_78E3DB31-2EED-498F-87DB-D7429C831231_multiInstanceItemType"/>
+          <bpmn2:completionCondition xsi:type="bpmn2:tFormalExpression" id="_U97nOlW4EeemQLvL9CHFYg">result_exit_condition</bpmn2:completionCondition>
+        </bpmn2:multiInstanceLoopCharacteristics>
+        <bpmn2:startEvent id="_6B021DAB-89DB-4696-A9D0-562C65FCD352" drools:selectable="true" color:background-color="#9acd32" color:border-color="#000000" color:color="#000000" name="">
+          <bpmn2:extensionElements>
+            <drools:metaData name="elementname">
+              <drools:metaValue><![CDATA[]]></drools:metaValue>
+            </drools:metaData>
+          </bpmn2:extensionElements>
+          <bpmn2:documentation id="_U97nO1W4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+          <bpmn2:outgoing>_B6C66A22-249D-4422-9955-A1C70A3A0F16</bpmn2:outgoing>
+        </bpmn2:startEvent>
+        <bpmn2:endEvent id="_E312A6E4-19ED-43AB-8D21-E0E42DA8058F" drools:selectable="true" color:background-color="#ff6347" color:border-color="#000000" color:color="#000000" name="">
+          <bpmn2:extensionElements>
+            <drools:metaData name="elementname">
+              <drools:metaValue><![CDATA[]]></drools:metaValue>
+            </drools:metaData>
+          </bpmn2:extensionElements>
+          <bpmn2:documentation id="_U97nPFW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+          <bpmn2:incoming>_2AD59678-BFB6-4AE9-8D10-A3DA6E387358</bpmn2:incoming>
+        </bpmn2:endEvent>
+        <bpmn2:scriptTask id="_BC3B501E-1BD9-4678-9CC4-BC7D71DD3E0D" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="test" scriptFormat="http://www.java.com/java">
+          <bpmn2:extensionElements>
+            <drools:metaData name="elementname">
+              <drools:metaValue><![CDATA[test]]></drools:metaValue>
+            </drools:metaData>
+          </bpmn2:extensionElements>
+          <bpmn2:incoming>_B6C66A22-249D-4422-9955-A1C70A3A0F16</bpmn2:incoming>
+          <bpmn2:outgoing>_2FDBEEDA-8E86-402B-86CD-93680CFF000B</bpmn2:outgoing>
+          <bpmn2:script><![CDATA[try{
+  flight_seg = (FlightSegment) defaultDataInput;
+  kcontext.setVariable("flight_seg",flight_seg);
+  System.out.println("test...."  + flight_seg.getStatus().getAid());
+}
+catch(Exception e){
+	error_msg = "Error is " + e.getMessage() + " Process name = Calculate Disruption Impact ," + "Process instance id = " + kcontext.getProcessInstance().getId() + "Node id = " + kcontext.getNodeInstance().getNodeName();
+	kcontext.setVariable("error_msg",error_msg);
+	//e.printStackTrace();
+	throw new Exception(error_msg);
+}]]></bpmn2:script>
+        </bpmn2:scriptTask>
+        <bpmn2:callActivity id="_55191DC3-3909-4056-A101-01BFEE4A32C5" drools:selectable="true" drools:independent="true" drools:waitForCompletion="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="Trigger Calculate disruption impact" calledElement="ProcessClaim.CalculateDisruptionImpactForEachFlightSegment">
+          <bpmn2:extensionElements>
+            <drools:metaData name="elementname">
+              <drools:metaValue><![CDATA[Trigger Calculate disruption impact]]></drools:metaValue>
+            </drools:metaData>
+            <drools:onExit-script scriptFormat="http://www.java.com/java">
+              <drools:script><![CDATA[System.out.println("result_segment_check   "  +  result_segment_check);
+
+
+]]></drools:script>
+            </drools:onExit-script>
+          </bpmn2:extensionElements>
+          <bpmn2:incoming>_2FDBEEDA-8E86-402B-86CD-93680CFF000B</bpmn2:incoming>
+          <bpmn2:outgoing>_9E79FBE0-B3DB-4A9E-BD98-E20D15F55892</bpmn2:outgoing>
+          <bpmn2:ioSpecification id="_U97nPVW4EeemQLvL9CHFYg">
+            <bpmn2:dataInput id="_55191DC3-3909-4056-A101-01BFEE4A32C5_flight_seg_objInputX" drools:dtype="Object" name="flight_seg_obj"/>
+            <bpmn2:dataOutput id="_55191DC3-3909-4056-A101-01BFEE4A32C5_resultOutputX" drools:dtype="String" name="result"/>
+            <bpmn2:dataOutput id="_55191DC3-3909-4056-A101-01BFEE4A32C5_error_msgOutputX" drools:dtype="String" name="error_msg"/>
+            <bpmn2:inputSet id="_U97nPlW4EeemQLvL9CHFYg">
+              <bpmn2:dataInputRefs>_55191DC3-3909-4056-A101-01BFEE4A32C5_flight_seg_objInputX</bpmn2:dataInputRefs>
+            </bpmn2:inputSet>
+            <bpmn2:outputSet id="_U97nP1W4EeemQLvL9CHFYg">
+              <bpmn2:dataOutputRefs>_55191DC3-3909-4056-A101-01BFEE4A32C5_resultOutputX</bpmn2:dataOutputRefs>
+              <bpmn2:dataOutputRefs>_55191DC3-3909-4056-A101-01BFEE4A32C5_error_msgOutputX</bpmn2:dataOutputRefs>
+            </bpmn2:outputSet>
+          </bpmn2:ioSpecification>
+          <bpmn2:dataInputAssociation id="_U97nQFW4EeemQLvL9CHFYg">
+            <bpmn2:sourceRef>flight_seg</bpmn2:sourceRef>
+            <bpmn2:targetRef>_55191DC3-3909-4056-A101-01BFEE4A32C5_flight_seg_objInputX</bpmn2:targetRef>
+          </bpmn2:dataInputAssociation>
+          <bpmn2:dataOutputAssociation id="_U97nQVW4EeemQLvL9CHFYg">
+            <bpmn2:sourceRef>_55191DC3-3909-4056-A101-01BFEE4A32C5_resultOutputX</bpmn2:sourceRef>
+            <bpmn2:targetRef>result_segment_check</bpmn2:targetRef>
+          </bpmn2:dataOutputAssociation>
+          <bpmn2:dataOutputAssociation id="_U97nQlW4EeemQLvL9CHFYg">
+            <bpmn2:sourceRef>_55191DC3-3909-4056-A101-01BFEE4A32C5_error_msgOutputX</bpmn2:sourceRef>
+            <bpmn2:targetRef>error_msg</bpmn2:targetRef>
+          </bpmn2:dataOutputAssociation>
+        </bpmn2:callActivity>
+        <bpmn2:scriptTask id="_EAEB75B6-9E7B-4080-860F-24C289D94798" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="Get Result" scriptFormat="http://www.java.com/java">
+          <bpmn2:extensionElements>
+            <drools:metaData name="elementname">
+              <drools:metaValue><![CDATA[Get Result]]></drools:metaValue>
+            </drools:metaData>
+          </bpmn2:extensionElements>
+          <bpmn2:incoming>_9E79FBE0-B3DB-4A9E-BD98-E20D15F55892</bpmn2:incoming>
+          <bpmn2:outgoing>_2AD59678-BFB6-4AE9-8D10-A3DA6E387358</bpmn2:outgoing>
+          <bpmn2:script><![CDATA[try{
+  if(result_segment_check == "OVERNIGHT_DELAY" || result_segment_check == "CANCELLATION" || result_segment_check == "DELAY_3" || result_segment_check == "DIVERSION" || result_segment_check == "DIVERSION_DELAY_3"){
+    result_exit_condition = true;
+    result_final = result_segment_check;
+    //list_result.remove(result_segment_check);
+  }
+  else{
+    result_exit_condition = false;  
+    list_result.add(result_segment_check);
+  }
+  
+  
+  
+  kcontext.setVariable("result_exit_condition",result_exit_condition);
+  kcontext.setVariable("list_result",list_result);
+  kcontext.setVariable("result_final",result_final);
+}
+catch(Exception e){
+	error_msg = "Error while collecting disruption result for each flight segment. Error is " + e.toString() + " Process name = Calculate Disruption Impact ," + "Process instance id = " + kcontext.getProcessInstance().getId() + ", Node id = " + kcontext.getNodeInstance().getNodeName();
+	kcontext.setVariable("error_msg",error_msg);
+	//e.printStackTrace();
+	throw new Exception(error_msg);
+}
+
+]]></bpmn2:script>
+        </bpmn2:scriptTask>
+        <bpmn2:sequenceFlow id="_B6C66A22-249D-4422-9955-A1C70A3A0F16" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_6B021DAB-89DB-4696-A9D0-562C65FCD352" targetRef="_BC3B501E-1BD9-4678-9CC4-BC7D71DD3E0D">
+          <bpmn2:documentation id="_U97nQ1W4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        </bpmn2:sequenceFlow>
+        <bpmn2:sequenceFlow id="_2FDBEEDA-8E86-402B-86CD-93680CFF000B" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_BC3B501E-1BD9-4678-9CC4-BC7D71DD3E0D" targetRef="_55191DC3-3909-4056-A101-01BFEE4A32C5">
+          <bpmn2:documentation id="_U97nRFW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        </bpmn2:sequenceFlow>
+        <bpmn2:sequenceFlow id="_9E79FBE0-B3DB-4A9E-BD98-E20D15F55892" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_55191DC3-3909-4056-A101-01BFEE4A32C5" targetRef="_EAEB75B6-9E7B-4080-860F-24C289D94798">
+          <bpmn2:documentation id="_U97nRVW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        </bpmn2:sequenceFlow>
+        <bpmn2:sequenceFlow id="_2AD59678-BFB6-4AE9-8D10-A3DA6E387358" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_EAEB75B6-9E7B-4080-860F-24C289D94798" targetRef="_E312A6E4-19ED-43AB-8D21-E0E42DA8058F">
+          <bpmn2:documentation id="_U97nRlW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        </bpmn2:sequenceFlow>
+      </bpmn2:subProcess>
+      <bpmn2:scriptTask id="_B08858FF-7C84-46BE-86DD-C56AB87CAFDF" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="Get flight segments list from customer flight status object" scriptFormat="http://www.java.com/java">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[Get flight segments list from customer flight status object]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>_EE3BDF30-9638-4CA8-9433-ED4AF5108FDC</bpmn2:incoming>
+        <bpmn2:outgoing>_8266B6AC-0D8A-4B28-A9D6-E2228FBC5B48</bpmn2:outgoing>
+        <bpmn2:script><![CDATA[try{
+  error_map = new HashMap();
+  List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();
+  //list_flight_segments = list;
+  
+  System.out.println("*******************  list.size() "  +  list.size());
+    
+  list_flight_segments = (List<FlightSegment>)list;
+  System.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());
+  
+  kcontext.setVariable("list_flight_segments",list_flight_segments);
+  
+  list_result = new ArrayList<>();
+  kcontext.setVariable("list_result",list_result);
+  
+  for(int i=0;i<list.size();i++){
+      if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){
+      System.out.println("flight date does not match.......");
+      samedayflights = false;
+  }
+    else{
+      samedayflights = true;
+    }
+  }
+  kcontext.setVariable("samedayflights",samedayflights);
+}
+catch(Exception e){
+	error_msg = "Error while traversing the Flight segment object list. customer flight status object might be NULL. Error is " + e.toString() + " Process name = Calculate Disruption Impact ," + "Process instance id = " + kcontext.getProcessInstance().getId() + " , Node id = " + kcontext.getNodeInstance().getNodeName();
+	kcontext.setVariable("error_msg",error_msg);
+	//e.printStackTrace();
+	throw new Exception(error_msg);
+}]]></bpmn2:script>
+      </bpmn2:scriptTask>
+      <bpmn2:endEvent id="_240FA768-F40C-4FEF-92BB-731B429C6574" drools:selectable="true" color:background-color="#ff6347" color:border-color="#000000" color:color="#000000" name="">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:documentation id="_U97nR1W4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        <bpmn2:incoming>_D6400E30-60E7-4E36-BB8A-12ADA6F05931</bpmn2:incoming>
+      </bpmn2:endEvent>
+      <bpmn2:scriptTask id="_8EDABF83-4DA5-40C2-92A6-01A2F3534594" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="Get final result" scriptFormat="http://www.java.com/java">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[Get final result]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>_1B56ED9E-DA6E-4617-A7B6-2665391E9C5B</bpmn2:incoming>
+        <bpmn2:outgoing>_D6400E30-60E7-4E36-BB8A-12ADA6F05931</bpmn2:outgoing>
+        <bpmn2:script><![CDATA[try{
+  System.out.println("list_result   "  +  list_result);
+  
+  if(list_result.size()==0 || list_result.size() <1){
+    result_final = result_segment_check;
+  }
+  else{
+    if(list_result.contains("UNKNOWN")){
+      result_final = "EXCEPTION";
+    }
+    else if(list_result.contains("DEPARTURE_DELAY_2_3")){
+      result_final = "DELAY_NO_RECORD";
+    }
+    else if(list_result.contains("NO_DISRUPTION")){
+      result_final = "NO_DISRUPTION";
+    }
+    else{
+      result_final = "EXCEPTION";
+    }
+  }
+  
+  kcontext.setVariable("result_final",result_final);
+  System.out.println("Final disruption calculation result is  == "  + result_final);
+}
+catch(Exception e){
+	error_msg = "Error while determining Disruption type calculated. List of Disruption result might have nor populated properly ot NULL. Error is " + e.toString() + " Process name = Calculate Disruption Impact ," + "Process instance id = " + kcontext.getProcessInstance().getId() + "Node id = " + kcontext.getNodeInstance().getNodeName();
+	kcontext.setVariable("error_msg",error_msg);
+	//e.printStackTrace();
+	throw new Exception(error_msg);
+}
+
+]]></bpmn2:script>
+      </bpmn2:scriptTask>
+      <bpmn2:exclusiveGateway id="_301A1BB5-71E9-42E8-9D23-068255F38AB4" drools:selectable="true" drools:dg="No : _38F6957B-B9AB-4907-BDFE-8287F12B95FE" color:background-color="#f0e68c" color:border-color="#a67f00" color:color="#000000" name="Same Day Flights?" gatewayDirection="Diverging" default="_38F6957B-B9AB-4907-BDFE-8287F12B95FE">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[Same Day Flights?]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:documentation id="_U97nSFW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        <bpmn2:incoming>_8266B6AC-0D8A-4B28-A9D6-E2228FBC5B48</bpmn2:incoming>
+        <bpmn2:outgoing>_26EE5450-7B10-49CD-982D-751CED7D0556</bpmn2:outgoing>
+        <bpmn2:outgoing>_38F6957B-B9AB-4907-BDFE-8287F12B95FE</bpmn2:outgoing>
+      </bpmn2:exclusiveGateway>
+      <bpmn2:scriptTask id="_2CDFFB5F-2E35-4937-B084-BE9D64DF0712" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="Set Result to UNKNOWN" scriptFormat="http://www.java.com/java">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[Set Result to UNKNOWN]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:incoming>_38F6957B-B9AB-4907-BDFE-8287F12B95FE</bpmn2:incoming>
+        <bpmn2:outgoing>_85C37F32-6C2E-4E1D-8AA9-631E7B4A794B</bpmn2:outgoing>
+        <bpmn2:script><![CDATA[result_final = "EXCEPTION";
+kcontext.setVariable("result_final",result_final);]]></bpmn2:script>
+      </bpmn2:scriptTask>
+      <bpmn2:endEvent id="_59E6753A-17E4-46B3-B04B-A6E12CA81BB5" drools:selectable="true" color:background-color="#ff6347" color:border-color="#000000" color:color="#000000" name="">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:documentation id="_U97nSVW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        <bpmn2:incoming>_85C37F32-6C2E-4E1D-8AA9-631E7B4A794B</bpmn2:incoming>
+      </bpmn2:endEvent>
+      <bpmn2:sequenceFlow id="_1B56ED9E-DA6E-4617-A7B6-2665391E9C5B" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_78E3DB31-2EED-498F-87DB-D7429C831231" targetRef="_8EDABF83-4DA5-40C2-92A6-01A2F3534594">
+        <bpmn2:documentation id="_U97nSlW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+      </bpmn2:sequenceFlow>
+      <bpmn2:sequenceFlow id="_D6400E30-60E7-4E36-BB8A-12ADA6F05931" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_8EDABF83-4DA5-40C2-92A6-01A2F3534594" targetRef="_240FA768-F40C-4FEF-92BB-731B429C6574">
+        <bpmn2:documentation id="_U97nS1W4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+      </bpmn2:sequenceFlow>
+      <bpmn2:sequenceFlow id="_8266B6AC-0D8A-4B28-A9D6-E2228FBC5B48" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_B08858FF-7C84-46BE-86DD-C56AB87CAFDF" targetRef="_301A1BB5-71E9-42E8-9D23-068255F38AB4">
+        <bpmn2:documentation id="_U97nTFW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+      </bpmn2:sequenceFlow>
+      <bpmn2:sequenceFlow id="_26EE5450-7B10-49CD-982D-751CED7D0556" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" name="Yes" sourceRef="_301A1BB5-71E9-42E8-9D23-068255F38AB4" targetRef="_78E3DB31-2EED-498F-87DB-D7429C831231">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[Yes]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:documentation id="_U97nTVW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="_U97nTlW4EeemQLvL9CHFYg" language="http://www.java.com/java"><![CDATA[return  KieFunctions.isTrue(samedayflights);]]></bpmn2:conditionExpression>
+      </bpmn2:sequenceFlow>
+      <bpmn2:sequenceFlow id="_38F6957B-B9AB-4907-BDFE-8287F12B95FE" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" name="No" sourceRef="_301A1BB5-71E9-42E8-9D23-068255F38AB4" targetRef="_2CDFFB5F-2E35-4937-B084-BE9D64DF0712">
+        <bpmn2:extensionElements>
+          <drools:metaData name="elementname">
+            <drools:metaValue><![CDATA[No]]></drools:metaValue>
+          </drools:metaData>
+        </bpmn2:extensionElements>
+        <bpmn2:documentation id="_U97nT1W4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+        <bpmn2:conditionExpression xsi:type="bpmn2:tFormalExpression" id="_U97nUFW4EeemQLvL9CHFYg"></bpmn2:conditionExpression>
+      </bpmn2:sequenceFlow>
+      <bpmn2:sequenceFlow id="_85C37F32-6C2E-4E1D-8AA9-631E7B4A794B" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_2CDFFB5F-2E35-4937-B084-BE9D64DF0712" targetRef="_59E6753A-17E4-46B3-B04B-A6E12CA81BB5">
+        <bpmn2:documentation id="_U97nUVW4EeemQLvL9CHFYg"><![CDATA[List<FlightSegment> list = cust_flight_status.getFlights().get(0).getFlightSegment();\n//list_flight_segments = list;\n\nSystem.out.println("*******************  list.size() "  +  list.size());\n  \nlist_flight_segments = (List<FlightSegment>)list;\nSystem.out.println("*******************   list_flight_segments.size() "  + list_flight_segments.size());\n\nkcontext.setVariable("list_flight_segments",list_flight_segments);\n\nlist_result = new ArrayList<>();\nkcontext.setVariable("list_result",list_result);\n\nfor(int i=0;i<list.size();i++){\n	if(!list.get(0).getDates().getFlightDate().equals(list.get(i).getDates().getFlightDate())){\n	System.out.println("flight date does not match.......");\n	samedayflights = false;\n}\n  else{\n    samedayflights = true;\n  }\n}\n\nkcontext.setVariable("samedayflights",samedayflights);]]></bpmn2:documentation>
+      </bpmn2:sequenceFlow>
+      <bpmn2:sequenceFlow id="_EE3BDF30-9638-4CA8-9433-ED4AF5108FDC" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="processStartEvent" targetRef="_B08858FF-7C84-46BE-86DD-C56AB87CAFDF"/>
+    </bpmn2:subProcess>
+    <bpmn2:startEvent id="_C860BB5E-181F-40D4-BC8D-6F0A6C3520A9" drools:selectable="true" color:background-color="#9acd32" color:border-color="#000000" color:color="#000000" name="">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:outgoing>_FE8B96B5-CFF7-452C-893B-79FD95445809</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:sequenceFlow id="_FE8B96B5-CFF7-452C-893B-79FD95445809" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_C860BB5E-181F-40D4-BC8D-6F0A6C3520A9" targetRef="_FB5A906A-7258-4681-9DBE-24DE842811C5"/>
+    <bpmn2:endEvent id="_5D4E24A0-E921-4BE2-B274-842485A3CAF4" drools:selectable="true" color:background-color="#ff6347" color:border-color="#000000" color:color="#000000" name="">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_EBC022EA-C3F3-4F35-A3BB-CDB4CDBB89B7</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="_EBC022EA-C3F3-4F35-A3BB-CDB4CDBB89B7" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_FB5A906A-7258-4681-9DBE-24DE842811C5" targetRef="_5D4E24A0-E921-4BE2-B274-842485A3CAF4"/>
+    <bpmn2:endEvent id="_10696434-4AED-4F09-95EC-7BB2E470F195" drools:selectable="true" color:background-color="#ff6347" color:border-color="#000000" color:color="#000000" name="">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_7D737867-B587-491D-A0B6-2D38DC551C3D</bpmn2:incoming>
+      <bpmn2:errorEventDefinition id="_U97nUlW4EeemQLvL9CHFYg" drools:erefname="error_calculatedisruptionimpact" errorRef="_U97nU1W4EeemQLvL9CHFYg"/>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="_C391F3B2-55BA-42F3-8951-93DCF04ADC0D" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_73FDB9BB-4FB0-4E51-A30E-1496D2F7AFDA" targetRef="_7DA4E73F-3359-4F0F-AA02-AE6DFBEC0AB2"/>
+    <bpmn2:scriptTask id="_7DA4E73F-3359-4F0F-AA02-AE6DFBEC0AB2" drools:selectable="true" color:background-color="#fafad2" color:border-color="#000000" color:color="#000000" name="Error Mapper" scriptFormat="http://www.java.com/java">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Error Mapper]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>_C391F3B2-55BA-42F3-8951-93DCF04ADC0D</bpmn2:incoming>
+      <bpmn2:outgoing>_7D737867-B587-491D-A0B6-2D38DC551C3D</bpmn2:outgoing>
+      <bpmn2:script><![CDATA[error_map.put("stage","Calculating Disruption Impact");
+error_map.put("service","NA");
+error_map.put("request","NA");
+error_map.put("payment_id","NA");
+error_map.put("kana_case_id","NA");
+error_map.put("error",error_msg);
+
+kcontext.setVariable("error_map",error_map);]]></bpmn2:script>
+    </bpmn2:scriptTask>
+    <bpmn2:sequenceFlow id="_7D737867-B587-491D-A0B6-2D38DC551C3D" drools:selectable="true" color:background-color="#000000" color:border-color="#000000" color:color="#000000" sourceRef="_7DA4E73F-3359-4F0F-AA02-AE6DFBEC0AB2" targetRef="_10696434-4AED-4F09-95EC-7BB2E470F195"/>
+    <bpmn2:boundaryEvent id="_73FDB9BB-4FB0-4E51-A30E-1496D2F7AFDA" drools:selectable="true" drools:boundaryca="true" drools:dockerinfo="662.0^310.0|" color:background-color="#f5deb3" color:border-color="#a0522d" color:color="#000000" name="" attachedToRef="_FB5A906A-7258-4681-9DBE-24DE842811C5">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:outgoing>_C391F3B2-55BA-42F3-8951-93DCF04ADC0D</bpmn2:outgoing>
+      <bpmn2:errorEventDefinition id="_U97nVFW4EeemQLvL9CHFYg" errorRef="_U97nVVW4EeemQLvL9CHFYg"/>
+    </bpmn2:boundaryEvent>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="_U97nVlW4EeemQLvL9CHFYg">
+    <bpmndi:BPMNPlane id="_U97nV1W4EeemQLvL9CHFYg" bpmnElement="ProcessClaim.CalculateDisruptionImpact">
+      <bpmndi:BPMNShape id="_U97nWFW4EeemQLvL9CHFYg" bpmnElement="_FB5A906A-7258-4681-9DBE-24DE842811C5">
+        <dc:Bounds height="311.0" width="1265.0" x="165.0" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nWVW4EeemQLvL9CHFYg" bpmnElement="_78E3DB31-2EED-498F-87DB-D7429C831231">
+        <dc:Bounds height="171.0" width="531.0" x="618.0" y="115.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nWlW4EeemQLvL9CHFYg" bpmnElement="processStartEvent">
+        <dc:Bounds height="30.0" width="30.0" x="243.0" y="186.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nW1W4EeemQLvL9CHFYg" bpmnElement="_6B021DAB-89DB-4696-A9D0-562C65FCD352">
+        <dc:Bounds height="30.0" width="30.0" x="648.0" y="175.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nXFW4EeemQLvL9CHFYg" bpmnElement="_E312A6E4-19ED-43AB-8D21-E0E42DA8058F">
+        <dc:Bounds height="28.0" width="28.0" x="1098.0" y="181.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nXVW4EeemQLvL9CHFYg" bpmnElement="_BC3B501E-1BD9-4678-9CC4-BC7D71DD3E0D">
+        <dc:Bounds height="80.0" width="100.0" x="708.0" y="150.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nXlW4EeemQLvL9CHFYg" bpmnElement="_55191DC3-3909-4056-A101-01BFEE4A32C5">
+        <dc:Bounds height="80.0" width="100.0" x="840.0" y="150.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nX1W4EeemQLvL9CHFYg" bpmnElement="_EAEB75B6-9E7B-4080-860F-24C289D94798">
+        <dc:Bounds height="80.0" width="100.0" x="963.0" y="151.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nYFW4EeemQLvL9CHFYg" bpmnElement="_B08858FF-7C84-46BE-86DD-C56AB87CAFDF">
+        <dc:Bounds height="80.0" width="100.0" x="318.0" y="161.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nYVW4EeemQLvL9CHFYg" bpmnElement="_240FA768-F40C-4FEF-92BB-731B429C6574">
+        <dc:Bounds height="28.0" width="28.0" x="1323.0" y="177.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nYlW4EeemQLvL9CHFYg" bpmnElement="_8EDABF83-4DA5-40C2-92A6-01A2F3534594">
+        <dc:Bounds height="80.0" width="100.0" x="1188.0" y="151.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nY1W4EeemQLvL9CHFYg" bpmnElement="_301A1BB5-71E9-42E8-9D23-068255F38AB4">
+        <dc:Bounds height="40.0" width="40.0" x="463.0" y="181.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nZFW4EeemQLvL9CHFYg" bpmnElement="_2CDFFB5F-2E35-4937-B084-BE9D64DF0712">
+        <dc:Bounds height="80.0" width="100.0" x="433.0" y="296.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nZVW4EeemQLvL9CHFYg" bpmnElement="_59E6753A-17E4-46B3-B04B-A6E12CA81BB5">
+        <dc:Bounds height="28.0" width="28.0" x="578.0" y="322.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nZlW4EeemQLvL9CHFYg" bpmnElement="_C860BB5E-181F-40D4-BC8D-6F0A6C3520A9">
+        <dc:Bounds height="30.0" width="30.0" x="75.0" y="231.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nZ1W4EeemQLvL9CHFYg" bpmnElement="_5D4E24A0-E921-4BE2-B274-842485A3CAF4">
+        <dc:Bounds height="28.0" width="28.0" x="1475.0" y="231.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97naFW4EeemQLvL9CHFYg" bpmnElement="_10696434-4AED-4F09-95EC-7BB2E470F195">
+        <dc:Bounds height="28.0" width="28.0" x="930.0" y="491.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97naVW4EeemQLvL9CHFYg" bpmnElement="_7DA4E73F-3359-4F0F-AA02-AE6DFBEC0AB2">
+        <dc:Bounds height="80.0" width="100.0" x="780.0" y="465.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_U97nalW4EeemQLvL9CHFYg" bpmnElement="_73FDB9BB-4FB0-4E51-A30E-1496D2F7AFDA">
+        <dc:Bounds height="30.0" width="30.0" x="812.0" y="386.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="_U97na1W4EeemQLvL9CHFYg" bpmnElement="_B6C66A22-249D-4422-9955-A1C70A3A0F16" sourceElement="_U97nW1W4EeemQLvL9CHFYg" targetElement="_U97nXVW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="678.0" y="190.0"/>
+        <di:waypoint xsi:type="dc:Point" x="708.0" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97nbFW4EeemQLvL9CHFYg" bpmnElement="_2FDBEEDA-8E86-402B-86CD-93680CFF000B" sourceElement="_U97nXVW4EeemQLvL9CHFYg" targetElement="_U97nXlW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="808.0" y="190.0"/>
+        <di:waypoint xsi:type="dc:Point" x="840.0" y="190.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97nbVW4EeemQLvL9CHFYg" bpmnElement="_9E79FBE0-B3DB-4A9E-BD98-E20D15F55892" sourceElement="_U97nXlW4EeemQLvL9CHFYg" targetElement="_U97nX1W4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="940.0" y="190.0"/>
+        <di:waypoint xsi:type="dc:Point" x="963.0" y="191.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97nblW4EeemQLvL9CHFYg" bpmnElement="_2AD59678-BFB6-4AE9-8D10-A3DA6E387358" sourceElement="_U97nX1W4EeemQLvL9CHFYg" targetElement="_U97nXFW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="1063.0" y="191.0"/>
+        <di:waypoint xsi:type="dc:Point" x="1098.0" y="195.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97nb1W4EeemQLvL9CHFYg" bpmnElement="_1B56ED9E-DA6E-4617-A7B6-2665391E9C5B" sourceElement="_U97nWVW4EeemQLvL9CHFYg" targetElement="_U97nYlW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="1149.0" y="200.5"/>
+        <di:waypoint xsi:type="dc:Point" x="1188.0" y="191.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97ncFW4EeemQLvL9CHFYg" bpmnElement="_D6400E30-60E7-4E36-BB8A-12ADA6F05931" sourceElement="_U97nYlW4EeemQLvL9CHFYg" targetElement="_U97nYVW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="1288.0" y="191.0"/>
+        <di:waypoint xsi:type="dc:Point" x="1323.0" y="191.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97ncVW4EeemQLvL9CHFYg" bpmnElement="_8266B6AC-0D8A-4B28-A9D6-E2228FBC5B48" sourceElement="_U97nYFW4EeemQLvL9CHFYg" targetElement="_U97nY1W4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="418.0" y="201.0"/>
+        <di:waypoint xsi:type="dc:Point" x="463.0" y="201.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97nclW4EeemQLvL9CHFYg" bpmnElement="_26EE5450-7B10-49CD-982D-751CED7D0556" sourceElement="_U97nY1W4EeemQLvL9CHFYg" targetElement="_U97nWVW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="503.0" y="201.0"/>
+        <di:waypoint xsi:type="dc:Point" x="618.0" y="200.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97nc1W4EeemQLvL9CHFYg" bpmnElement="_38F6957B-B9AB-4907-BDFE-8287F12B95FE" sourceElement="_U97nY1W4EeemQLvL9CHFYg" targetElement="_U97nZFW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="503.0" y="201.0"/>
+        <di:waypoint xsi:type="dc:Point" x="433.0" y="336.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97ndFW4EeemQLvL9CHFYg" bpmnElement="_85C37F32-6C2E-4E1D-8AA9-631E7B4A794B" sourceElement="_U97nZFW4EeemQLvL9CHFYg" targetElement="_U97nZVW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="533.0" y="336.0"/>
+        <di:waypoint xsi:type="dc:Point" x="578.0" y="336.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97ndVW4EeemQLvL9CHFYg" bpmnElement="_EE3BDF30-9638-4CA8-9433-ED4AF5108FDC" sourceElement="_U97nWlW4EeemQLvL9CHFYg" targetElement="_U97nYFW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="273.0" y="201.0"/>
+        <di:waypoint xsi:type="dc:Point" x="318.0" y="201.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97ndlW4EeemQLvL9CHFYg" bpmnElement="_FE8B96B5-CFF7-452C-893B-79FD95445809" sourceElement="_U97nZlW4EeemQLvL9CHFYg" targetElement="_U97nWFW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="90.0" y="246.0"/>
+        <di:waypoint xsi:type="dc:Point" x="797.5" y="245.5"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97nd1W4EeemQLvL9CHFYg" bpmnElement="_EBC022EA-C3F3-4F35-A3BB-CDB4CDBB89B7" sourceElement="_U97nWFW4EeemQLvL9CHFYg" targetElement="_U97nZ1W4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="797.5" y="245.5"/>
+        <di:waypoint xsi:type="dc:Point" x="1489.0" y="245.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97neFW4EeemQLvL9CHFYg" bpmnElement="_C391F3B2-55BA-42F3-8951-93DCF04ADC0D" sourceElement="_U97nalW4EeemQLvL9CHFYg" targetElement="_U97naVW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="827.0" y="401.0"/>
+        <di:waypoint xsi:type="dc:Point" x="830.0" y="505.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_U97neVW4EeemQLvL9CHFYg" bpmnElement="_7D737867-B587-491D-A0B6-2D38DC551C3D" sourceElement="_U97naVW4EeemQLvL9CHFYg" targetElement="_U97naFW4EeemQLvL9CHFYg">
+        <di:waypoint xsi:type="dc:Point" x="830.0" y="505.0"/>
+        <di:waypoint xsi:type="dc:Point" x="944.0" y="505.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmn2:relationship id="_U97nelW4EeemQLvL9CHFYg" type="BPSimData">
+    <bpmn2:extensionElements>
+      <bpsim:BPSimData>
+        <bpsim:Scenario xsi:type="bpsim:Scenario" id="default" name="Simulationscenario">
+          <bpsim:ScenarioParameters xsi:type="bpsim:ScenarioParameters" baseTimeUnit="min"/>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_7D737867-B587-491D-A0B6-2D38DC551C3D" id="_U97ne1W4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_8EDABF83-4DA5-40C2-92A6-01A2F3534594" id="_U97nfFW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_59E6753A-17E4-46B3-B04B-A6E12CA81BB5" id="_U97nfVW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_FE8B96B5-CFF7-452C-893B-79FD95445809" id="_U97nflW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_55191DC3-3909-4056-A101-01BFEE4A32C5" id="_U97nf1W4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_9E79FBE0-B3DB-4A9E-BD98-E20D15F55892" id="_U97ngFW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_8266B6AC-0D8A-4B28-A9D6-E2228FBC5B48" id="_U97ngVW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_E312A6E4-19ED-43AB-8D21-E0E42DA8058F" id="_U97nglW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_26EE5450-7B10-49CD-982D-751CED7D0556" id="_U97ng1W4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_EAEB75B6-9E7B-4080-860F-24C289D94798" id="_U97nhFW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_2CDFFB5F-2E35-4937-B084-BE9D64DF0712" id="_U97nhVW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_10696434-4AED-4F09-95EC-7BB2E470F195" id="_U97nhlW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_B08858FF-7C84-46BE-86DD-C56AB87CAFDF" id="_U97nh1W4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_FB5A906A-7258-4681-9DBE-24DE842811C5" id="_U97niFW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_EBC022EA-C3F3-4F35-A3BB-CDB4CDBB89B7" id="_U97niVW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_6B021DAB-89DB-4696-A9D0-562C65FCD352" id="_U97nilW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_7DA4E73F-3359-4F0F-AA02-AE6DFBEC0AB2" id="_U97ni1W4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_240FA768-F40C-4FEF-92BB-731B429C6574" id="_U97njFW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_C860BB5E-181F-40D4-BC8D-6F0A6C3520A9" id="_U97njVW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_85C37F32-6C2E-4E1D-8AA9-631E7B4A794B" id="_U97njlW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_D6400E30-60E7-4E36-BB8A-12ADA6F05931" id="_U97nj1W4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_1B56ED9E-DA6E-4617-A7B6-2665391E9C5B" id="_U97nkFW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="processStartEvent" id="_U97nkVW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_EE3BDF30-9638-4CA8-9433-ED4AF5108FDC" id="_U97nklW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_B6C66A22-249D-4422-9955-A1C70A3A0F16" id="_U97nk1W4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_C391F3B2-55BA-42F3-8951-93DCF04ADC0D" id="_U97nlFW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_78E3DB31-2EED-498F-87DB-D7429C831231" id="_U97nlVW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_38F6957B-B9AB-4907-BDFE-8287F12B95FE" id="_U97nllW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_2AD59678-BFB6-4AE9-8D10-A3DA6E387358" id="_U97nl1W4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_2FDBEEDA-8E86-402B-86CD-93680CFF000B" id="_U97nmFW4EeemQLvL9CHFYg">
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_BC3B501E-1BD9-4678-9CC4-BC7D71DD3E0D" id="_U97nmVW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:CostParameters xsi:type="bpsim:CostParameters">
+              <bpsim:UnitCost xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="0.0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_73FDB9BB-4FB0-4E51-A30E-1496D2F7AFDA" id="_U97nmlW4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ControlParameters xsi:type="bpsim:ControlParameters">
+              <bpsim:Probability xsi:type="bpsim:Parameter">
+                <bpsim:FloatingParameter value="100.0"/>
+              </bpsim:Probability>
+            </bpsim:ControlParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters xsi:type="bpsim:ElementParameters" elementRef="_5D4E24A0-E921-4BE2-B274-842485A3CAF4" id="_U97nm1W4EeemQLvL9CHFYg">
+            <bpsim:TimeParameters xsi:type="bpsim:TimeParameters">
+              <bpsim:ProcessingTime xsi:type="bpsim:Parameter">
+                <bpsim:UniformDistribution max="10.0" min="5.0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+        </bpsim:Scenario>
+      </bpsim:BPSimData>
+    </bpmn2:extensionElements>
+    <bpmn2:source>_U97nMFW4EeemQLvL9CHFYg</bpmn2:source>
+    <bpmn2:target>_U97nMFW4EeemQLvL9CHFYg</bpmn2:target>
+  </bpmn2:relationship>
+</bpmn2:definitions>
